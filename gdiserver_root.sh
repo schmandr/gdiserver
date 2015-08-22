@@ -11,6 +11,10 @@
 
 
 locale-gen de_CH.utf8
+# Maybe set time zone, e.g.
+# echo "Europe/Zurich" | tee /etc/timezone
+# dpkg-reconfigure --frontend noninteractive tzdata
+
 
 adduser --gecos "" $1
 adduser $1 sudo

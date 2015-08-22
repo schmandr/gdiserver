@@ -62,7 +62,7 @@ mkdir ~/sources/qgis_master/build
 cd ~/sources/qgis_master/build
 # TODO: not thoroughly tested yet
 cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local/qgis_master -DCMAKE_INSTALL_RPATH=/usr/local/qgis_master/lib -DENABLE_TESTS=OFF -DWITH_SERVER=ON
-make -j
+make -j 4
 make install
 # TODO: Maybe some .../crssync is necessary
 cd ~

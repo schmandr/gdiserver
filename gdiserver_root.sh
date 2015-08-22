@@ -5,7 +5,9 @@
 
 # This script must be run as root
 
-# Arguments: $1: username of the additional user to create
+# Arguments: 
+# $1 (mandatory): username of the additional user to create
+# $2 (mandatory): git branch to get part II script from
 
 adduser --gecos "" $1
 adduser $1 sudo
@@ -13,5 +15,5 @@ adduser $1 sudo
 cp -r /root/.ssh/ /home/$1/
 chown -R $1: /home/$1/.ssh/
 
-curl curl -o /home/$1/gdiserver.sh https://raw.githubusercontent.com/schmandr/gdiserver/master/gdiserver.sh
+curl curl -o /home/$1/gdiserver.sh https://raw.githubusercontent.com/schmandr/gdiserver/$2/gdiserver.sh
 chown $1: /home/$1/gdiserver.sh

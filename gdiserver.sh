@@ -6,10 +6,6 @@
 # This script must be run as user with sudo privileges
 
 
-# Generate locale for Switzerland
-locale-gen de_CH.utf8
-
-
 # Create and configure a 4GB swap file
 fallocate -l 4G /swapfile
 chmod 600 /swapfile

@@ -9,6 +9,9 @@
 # $1 (mandatory): username of the additional user to create
 # $2 (mandatory): git branch to get part II script from
 
+
+locale-gen de_CH.utf8
+
 adduser --gecos "" $1
 adduser $1 sudo
 

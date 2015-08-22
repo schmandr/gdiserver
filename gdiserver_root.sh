@@ -20,3 +20,4 @@ chown -R $1: /home/$1/.ssh/
 
 curl -o /home/$1/gdiserver.sh https://raw.githubusercontent.com/schmandr/gdiserver/$2/gdiserver.sh
 chown $1: /home/$1/gdiserver.sh
+chmod +x /home/$1/gdiserver.sh

@@ -64,8 +64,8 @@ cd ~/sources/qgis_master/build
 cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local/qgis_master -DCMAKE_INSTALL_RPATH=/usr/local/qgis_master/lib -DENABLE_TESTS=OFF -DWITH_SERVER=ON
 make -j 4
 make install
-# TODO: Maybe some .../crssync is necessary
 cd ~
+/usr/local/qgis_master/lib/qgis/crssync
 
 # Alternatively, download and install QGIS packages
 # For use without ubuntugis-unstable:

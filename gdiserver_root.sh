@@ -18,5 +18,5 @@ adduser $1 sudo
 cp -r /root/.ssh/ /home/$1/
 chown -R $1: /home/$1/.ssh/
 
-curl curl -o /home/$1/gdiserver.sh https://raw.githubusercontent.com/schmandr/gdiserver/$2/gdiserver.sh
+curl -o /home/$1/gdiserver.sh https://raw.githubusercontent.com/schmandr/gdiserver/$2/gdiserver.sh
 chown $1: /home/$1/gdiserver.sh

@@ -21,34 +21,22 @@ sysctl vm.vfs_cache_pressure=50
 echo "vm.vfs_cache_pressure = 50" >> /etc/sysctl.conf
 
 
-# Add ubuntugis-unstable apt repository and keys
+# Add repositories and keys
+# ubuntugis-unstable
 add-apt-repository --yes ppa:ubuntugis/ubuntugis-unstable
+# X2Go stable
+add-apt-repository --yes ppa:x2go/stable
 
 
-# Upgrade outdate packages and install various tools
+# Upgrade outdated packages and install X2Go server and various tools
 apt-get update
 # alternative: apt-get --yes dist-upgrade
 apt-get --yes upgrade
-apt-get install git zip
-
-# Install and configure PostGIS
-apt-get update
-apt-get --yes install postgis postgresql-9.3-postgis-2.1
-
-su postgres -c "createuser -s $USER"
-su postgres -c "createdb -O $USER geodb"
-# TODO: just to be sure we're not user postgres anymore, remove soon:
-touch test.txt
-
-
-# Install Java Runtime Environment
-# Note: install default-jre instead of default-jre-headless if necessary
-apt-get update
-apt-get --yes install default-jre-headless
+apt-get --yes install x2goserver x2goserver-xsession
+apt-get --yes install git zip
 
 
 # Install GDAL
-apt-get update
 apt-get --yes install gdal-bin python-gdal
 # workaround for fixing wrong towgs84 parameters:
 gdalversion=`gdalinfo --version | awk -F ' '  '{ print $2 }' | awk -F . '{ print $1 "." $2 }'`
@@ -61,6 +49,17 @@ unzip -d /usr/share/proj/ chenyx06ntv2.zip CHENYX06a.gsb
 cp chenyx06etrs.gsb /usr/share/proj/
 chown $USER: chenyx06ntv2.zip
 chown $USER: chenyx06etrs.gsb
+
+
+# Install and configure PostGIS
+apt-get --yes install postgis postgresql-9.3-postgis-2.1
+su postgres -c "createuser -s $USER"
+su postgres -c "createdb -O $USER geodb"
+
+
+# Install Java Runtime Environment
+# Note: install default-jre instead of default-jre-headless if necessary
+apt-get --yes install default-jre-headless
 
 
 
@@ -88,11 +87,12 @@ chown $USER: chenyx06etrs.gsb
 # For use with ubuntugis-unstable:
 echo "deb     http://qgis.org/ubuntugis-nightly trusty main" >> /etc/apt/sources.list.d/qgis.list
 echo "deb-src http://qgis.org/ubuntugis-nightly trusty main" >> /etc/apt/sources.list.d/qgis.list
-apt-key adv --recv-keys --keyserver keyserver.ubuntu.com DD45F6C3
+apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 3FF5FFCAD71472C4
 apt-get update
-apt-get install --yes qgis python-qgis qgis-plugin-grass
-apt-get install apache2 libapache2-mod-fcgid
+apt-get install --yes qgis python-qgis
+# qgis.org actually proposes: apt-get install --yes qgis python-qgis qgis-plugin-grass
 apt-get install --yes qgis-server
+apt-get install --yes apache2 libapache2-mod-fcgid
 # TODO: Maybe some .../crssync is necessary
 
 # Next do something like ln -s /usr/local/qgis_master/bin/qgis_mapserv.fcgi /usr/lib/cgi-bin/qgis_mapserv.fcgi

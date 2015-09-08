@@ -48,6 +48,8 @@ curl -O http://www.swisstopo.admin.ch/internet/swisstopo/en/home/products/softwa
 curl -O http://www.swisstopo.admin.ch/internet/swisstopo/en/home/products/software/products/chenyx06.parsys.00011.downloadList.29885.DownloadFile.tmp/chenyx06etrs.gsb
 unzip -d /usr/share/proj/ chenyx06ntv2.zip CHENYX06a.gsb
 cp chenyx06etrs.gsb /usr/share/proj/
+chmod 644 /usr/share/proj/CHENYX06a.gsb
+# not working:
 chown $USER: chenyx06ntv2.zip
 chown $USER: chenyx06etrs.gsb
 

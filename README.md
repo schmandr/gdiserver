@@ -11,4 +11,4 @@ Scripts for Ubuntu Server 14.04 x64.
 * run `./gdiserver_root.sh USERNAME master` (USERNAME is the name of a new administrative user that will be created; you will be asked to set a password for this user - choose it carefully)
 * Log out
 * Log in to your server with the just created USERNAME account, using ssh
-* run `sudo ./gdiserver.sh`
+* run `sudo ./gdiserver.sh` (you will need the password you set for the newly created user)

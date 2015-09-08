@@ -6,7 +6,8 @@
 # This script must be run as user with sudo privileges
 
 
-# Create and configure a 4GB swap file
+# Create and configure a 4GB swap file according to
+# https://www.digitalocean.com/community/tutorials/how-to-add-swap-on-ubuntu-14-04
 fallocate -l 4G /swapfile
 chmod 600 /swapfile
 mkswap /swapfile
@@ -21,10 +22,9 @@ sysctl vm.vfs_cache_pressure=50
 echo "vm.vfs_cache_pressure = 50" >> /etc/sysctl.conf
 
 
+
 # Add repositories and keys
-# ubuntugis-unstable
 add-apt-repository --yes ppa:ubuntugis/ubuntugis-unstable
-# X2Go stable
 add-apt-repository --yes ppa:x2go/stable
 
 
@@ -34,6 +34,7 @@ apt-get update
 apt-get --yes upgrade
 apt-get --yes install x2goserver x2goserver-xsession
 apt-get --yes install git zip
+
 
 
 # Install GDAL
@@ -51,16 +52,38 @@ chown $USER: chenyx06ntv2.zip
 chown $USER: chenyx06etrs.gsb
 
 
+
 # Install and configure PostGIS
 apt-get --yes install postgis postgresql-9.3-postgis-2.1
 su postgres -c "createuser -s $USER"
 su postgres -c "createdb -O $USER geodb"
 
 
+
 # Install Java Runtime Environment
 # Note: install default-jre instead of default-jre-headless if necessary
 apt-get --yes install default-jre-headless
 
+
+
+# Install QGIS (packages)
+# For use without ubuntugis-unstable:
+# echo "deb http://qgis.org/debian-nightly trusty main" >> /etc/apt/sources.list.d/qgis.list
+# echo "deb-src http://qgis.org/debian-nightly trusty main" >> /etc/apt/sources.list.d/qgis.list
+# For use with ubuntugis-unstable:
+echo "deb http://qgis.org/ubuntugis-nightly trusty main" >> /etc/apt/sources.list.d/qgis.list
+echo "deb-src http://qgis.org/ubuntugis-nightly trusty main" >> /etc/apt/sources.list.d/qgis.list
+apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 3FF5FFCAD71472C4
+apt-get update
+apt-get install --yes qgis python-qgis
+# qgis.org actually proposes: apt-get install --yes qgis python-qgis qgis-plugin-grass
+apt-get install --yes qgis-server
+apt-get install --yes apache2 libapache2-mod-fcgid
+# TODO: Maybe some .../crssync is necessary
+
+# Next do something like ln -s /usr/local/qgis_master/bin/qgis_mapserv.fcgi /usr/lib/cgi-bin/qgis_mapserv.fcgi
+# maybe chmod and chown ... /usr/lib/cgi-bin/qgis_mapserv.fcgi
+# write config into /etc/apache/mods-available/mod-fcgi.conf
 
 
 
@@ -79,24 +102,3 @@ apt-get --yes install default-jre-headless
 # make install
 # cd ~
 # /usr/local/qgis_master/lib/qgis/crssync
-
-# Install QGIS (packages)
-# For use without ubuntugis-unstable:
-# echo "deb     http://qgis.org/debian-nightly trusty main" >> /etc/apt/sources.list.d/qgis.list
-# echo "deb-src http://qgis.org/debian-nightly trusty main" >> /etc/apt/sources.list.d/qgis.list
-# For use with ubuntugis-unstable:
-echo "deb     http://qgis.org/ubuntugis-nightly trusty main" >> /etc/apt/sources.list.d/qgis.list
-echo "deb-src http://qgis.org/ubuntugis-nightly trusty main" >> /etc/apt/sources.list.d/qgis.list
-apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 3FF5FFCAD71472C4
-apt-get update
-apt-get install --yes qgis python-qgis
-# qgis.org actually proposes: apt-get install --yes qgis python-qgis qgis-plugin-grass
-apt-get install --yes qgis-server
-apt-get install --yes apache2 libapache2-mod-fcgid
-# TODO: Maybe some .../crssync is necessary
-
-# Next do something like ln -s /usr/local/qgis_master/bin/qgis_mapserv.fcgi /usr/lib/cgi-bin/qgis_mapserv.fcgi
-# maybe chmod and chown ... /usr/lib/cgi-bin/qgis_mapserv.fcgi
-# write config into /etc/apache/mods-available/mod-fcgi.conf
-
-

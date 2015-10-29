@@ -28,11 +28,10 @@ add-apt-repository --yes ppa:ubuntugis/ubuntugis-unstable
 add-apt-repository --yes ppa:x2go/stable
 
 
-# Upgrade outdated packages and install X2Go server and various tools
+# Upgrade outdated packages and install various tools
 apt-get update
 # alternative: apt-get --yes dist-upgrade
 apt-get --yes upgrade
-apt-get --yes install x2goserver x2goserver-xsession
 apt-get --yes install git zip
 
 
@@ -64,6 +63,11 @@ su postgres -c "createdb -O $SUDO_USER geodb"
 # Install Java Runtime Environment
 # Note: install default-jre instead of default-jre-headless if necessary
 apt-get --yes install default-jre-headless
+
+
+
+# Install X2Go server
+apt-get --yes install x2goserver x2goserver-xsession
 
 
 

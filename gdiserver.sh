@@ -55,8 +55,48 @@ chown $SUDO_USER: chenyx06etrs.gsb
 
 # Install and configure PostGIS
 apt-get --yes install postgis postgresql-9.3-postgis-2.1
-su postgres -c "createuser -s $SUDO_USER"
-su postgres -c "createdb -O $SUDO_USER geodb"
+dbname=geodb
+datausername=data_user
+datauserpwd='6u*Tt0Es1Ai-'
+
+# TODO: Maybe restrict DB access
+# * reject user postgres from anywhere except Unix domain socket
+# * only allow connections to database $dbname (not to postgres, template0, template1)
+
+# Create login roles
+su postgres -c "createuser --no-inherit --pwprompt ${SUDO_USER}" # will ask for a password
+su postgres -c "psql -c \"CREATE ROLE ${datausername} LOGIN PASSWORD '${datauserpwd}';\" " # we don't use the createuser command because it doesn't allow setting the password directly
+# Create nologin roles
+su postgres -c "psql -c 'CREATE ROLE super SUPERUSER NOINHERIT;'"
+su postgres -c "psql -c 'CREATE ROLE admin CREATEDB CREATEROLE NOINHERIT;'"
+# Assign roles
+su postgres -c "psql -c 'GRANT super TO ${SUDO_USER};'"
+su postgres -c "psql -c 'GRANT admin TO ${SUDO_USER} WITH ADMIN OPTION;'"
+
+# Create DB
+su postgres -c "createdb -O ${SUDO_USER} ${dbname}"
+# Install PostGIS in this DB
+su postgres -c "psql -d ${dbname} -c 'CREATE EXTENSION postgis';"
+# TODO: Maybe some GRANT necessary for geometry_columns etc.
+
+# Fine tune DB privileges
+su postgres -c "psql -d ${dbname} -c 'REVOKE CREATE ON SCHEMA public FROM PUBLIC;'" # otherwise every user could create objects in the public schema
+# TODO: Not working: su postgres -c "psql -c 'GRANT CREATE ON SCHEMA public TO admin;'"
+su postgres -c "psql -c 'GRANT CREATE ON DATABASE ${dbname} TO admin;'" # allow creating new schemas
+
+# Create .pgpass file
+echo \#hostname:port:database:username:password > .pgpass
+echo localhost:*:*:$SUDO_USER:notset >> .pgpass # remeber to update the password afterwards
+echo localhost:*:*:$datausername:$datauserpwd >> .pgpass
+chmod 0600 .pgpass
+chown $SUDO_USER: .pgpass
+
+
+
+# Setup a file geodata repository
+mkdir /geodata/
+chown root:$SUDO_USER /geodata/ # better create new group geodata_admin in the future
+chmod g+w /geodata/
 
 
 

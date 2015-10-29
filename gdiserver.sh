@@ -101,9 +101,12 @@ chmod g+w /geodata/
 
 
 
-# Install Java Runtime Environment
-# Note: install default-jre instead of default-jre-headless if necessary
+# Install Java Runtime Environment and ili2pg-2.3.0
 apt-get --yes install default-jre-headless
+curl -O http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-2.3.0.zip
+unzip ili2pg-2.3.0.zip
+chown $SUDO_USER: ili2pg-2.3.0.zip
+chown --recursive $SUDO_USER: ili2pg-2.3.0/
 
 
 
@@ -148,3 +151,8 @@ apt-get install --yes apache2 libapache2-mod-fcgid
 # make install
 # cd ~
 # /usr/local/qgis_master/lib/qgis/crssync
+
+
+
+# Show message
+echo Part II is finished. Remember to set the DB password in .pgpass

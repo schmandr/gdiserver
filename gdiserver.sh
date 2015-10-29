@@ -30,7 +30,7 @@ add-apt-repository --yes ppa:x2go/stable
 
 # Upgrade outdated packages and install various tools
 apt-get update
-# alternative: apt-get --yes dist-upgrade
+# alternative, but might need to reboot: apt-get --yes dist-upgrade
 apt-get --yes upgrade
 apt-get --yes install git zip
 
@@ -78,6 +78,7 @@ su postgres -c "createdb -O ${SUDO_USER} ${dbname}"
 # Install PostGIS in this DB
 su postgres -c "psql -d ${dbname} -c 'CREATE EXTENSION postgis';"
 # TODO: Maybe some GRANT necessary for geometry_columns etc.
+# TODO: Need to fix wrong towgs84 parameters for EPSG:21781 here too
 
 # Fine tune DB privileges
 su postgres -c "psql -d ${dbname} -c 'REVOKE CREATE ON SCHEMA public FROM PUBLIC;'" # otherwise every user could create objects in the public schema

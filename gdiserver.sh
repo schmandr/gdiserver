@@ -49,16 +49,15 @@ curl -O http://www.swisstopo.admin.ch/internet/swisstopo/en/home/products/softwa
 unzip -d /usr/share/proj/ chenyx06ntv2.zip CHENYX06a.gsb
 cp chenyx06etrs.gsb /usr/share/proj/
 chmod 644 /usr/share/proj/CHENYX06a.gsb
-# not working:
-chown $USER: chenyx06ntv2.zip
-chown $USER: chenyx06etrs.gsb
+chown $SUDO_USER: chenyx06ntv2.zip
+chown $SUDO_USER: chenyx06etrs.gsb
 
 
 
 # Install and configure PostGIS
 apt-get --yes install postgis postgresql-9.3-postgis-2.1
-su postgres -c "createuser -s $USER"
-su postgres -c "createdb -O $USER geodb"
+su postgres -c "createuser -s $SUDO_USER"
+su postgres -c "createdb -O $SUDO_USER geodb"
 
 
 

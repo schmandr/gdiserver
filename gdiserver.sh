@@ -74,7 +74,7 @@ su postgres -c "psql -c 'GRANT super TO ${SUDO_USER};'"
 su postgres -c "psql -c 'GRANT admin TO ${SUDO_USER} WITH ADMIN OPTION;'"
 
 # Create DB
-su postgres -c "createdb -O ${SUDO_USER} ${dbname}"
+su postgres -c "createdb -O admin ${dbname}"
 # Install PostGIS in this DB
 su postgres -c "psql -d ${dbname} -c 'CREATE EXTENSION postgis';"
 # TODO: Maybe some GRANT necessary for geometry_columns etc.

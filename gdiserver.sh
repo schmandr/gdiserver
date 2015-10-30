@@ -94,9 +94,9 @@ chown $SUDO_USER: .pgpass
 
 
 
-# Setup a file geodata repository
+# Setup the root directory of the file geodata repository
 mkdir /geodata/
-chown root:$SUDO_USER /geodata/ # better create new group geodata_admin in the future
+chown root:geodata_admin /geodata/
 chmod g+w /geodata/
 
 

@@ -15,9 +15,11 @@ locale-gen de_CH.utf8
 # echo "Europe/Zurich" | tee /etc/timezone
 # dpkg-reconfigure --frontend noninteractive tzdata
 
-
+addgroup geodata_admin # group that is allowed to administer the file geodata repository
 adduser --gecos "" $1
+
 adduser $1 sudo
+adduser $1 geodata_admin
 
 cp -r /root/.ssh/ /home/$1/
 chown -R $1: /home/$1/.ssh/

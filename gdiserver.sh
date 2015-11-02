@@ -33,11 +33,13 @@ apt-get update
 # alternative, but might need to reboot: apt-get --yes dist-upgrade
 apt-get --yes upgrade
 apt-get --yes install git zip
+apt-get clean
 
 
 
 # Install GDAL
 apt-get --yes install gdal-bin python-gdal
+apt-get clean
 # workaround for fixing wrong towgs84 parameters:
 gdalversion=`gdalinfo --version | awk -F ' '  '{ print $2 }' | awk -F . '{ print $1 "." $2 }'`
 echo "4149,CH1903,6149,CH1903,6149,9122,7004,8901,1,0,6422,1766,1,9603,674.374,15.056,405.346,,,," >> /usr/share/gdal/$gdalversion/gcs.override.csv
@@ -55,6 +57,8 @@ chown $SUDO_USER: chenyx06etrs.gsb
 
 # Install and configure PostGIS
 apt-get --yes install postgis postgresql-9.3-postgis-2.1
+apt-get clean
+
 dbname=geodb
 datausername=data_user
 datauserpwd='6u*Tt0Es1Ai-'
@@ -103,6 +107,7 @@ chmod g+w /geodata/
 
 # Install Java Runtime Environment and ili2pg-2.3.0
 apt-get --yes install default-jre-headless
+apt-get clean
 curl -O http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-2.3.0.zip
 unzip ili2pg-2.3.0.zip
 chown $SUDO_USER: ili2pg-2.3.0.zip
@@ -112,6 +117,7 @@ chown --recursive $SUDO_USER: ili2pg-2.3.0/
 
 # Install X2Go server
 apt-get --yes install x2goserver x2goserver-xsession
+apt-get clean
 
 
 
@@ -126,8 +132,10 @@ apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 3FF5FFCAD71472C4
 apt-get update
 apt-get install --yes qgis python-qgis
 # qgis.org actually proposes: apt-get install --yes qgis python-qgis qgis-plugin-grass
+apt-get clean
 apt-get install --yes qgis-server
 apt-get install --yes apache2 libapache2-mod-fcgid
+apt-get clean
 # TODO: Maybe some .../crssync is necessary
 
 # Next do something like ln -s /usr/local/qgis_master/bin/qgis_mapserv.fcgi /usr/lib/cgi-bin/qgis_mapserv.fcgi

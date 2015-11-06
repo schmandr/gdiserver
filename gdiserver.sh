@@ -68,14 +68,17 @@ datauserpwd='6u*Tt0Es1Ai-'
 # * only allow connections to database $dbname (not to postgres, template0, template1)
 
 # Create login roles
-su postgres -c "createuser --no-inherit --pwprompt ${SUDO_USER}" # will ask for a password
+su postgres -c "createuser --pwprompt ${SUDO_USER}" # will ask for a password
 su postgres -c "psql -c \"CREATE ROLE ${datausername} LOGIN PASSWORD '${datauserpwd}';\" " # we don't use the createuser command because it doesn't allow setting the password directly
-# Create nologin roles
+# Create "function roles"
 su postgres -c "psql -c 'CREATE ROLE super SUPERUSER NOINHERIT;'"
 su postgres -c "psql -c 'CREATE ROLE admin CREATEDB CREATEROLE NOINHERIT;'"
+# Create "group roles"
+su postgres -c "psql -c 'CREATE ROLE administrators NOINHERIT;'" # the basic concept is that all login roles should INHERIT group role privileges; this is, however, an "intermediate" role to prevent INHERIT of the admin role privileges to the user
+su postgres -c "psql -c 'GRANT admin TO adminitrators;'"
 # Assign roles
+su postgres -c "psql -c 'GRANT administrators TO ${SUDO_USER} WITH ADMIN OPTION;'" # for che chief admins: WITH ADMIN OPTION; for other admins: without ADMIN OPTION
 su postgres -c "psql -c 'GRANT super TO ${SUDO_USER};'"
-su postgres -c "psql -c 'GRANT admin TO ${SUDO_USER} WITH ADMIN OPTION;'"
 
 # Create DB
 su postgres -c "createdb -O admin ${dbname}"

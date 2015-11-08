@@ -32,7 +32,7 @@ add-apt-repository --yes ppa:x2go/stable
 apt-get update
 # alternative, but might need to reboot: apt-get --yes dist-upgrade
 apt-get --yes upgrade
-apt-get --yes install git zip
+apt-get --yes install git zip pwgen
 apt-get clean
 
 
@@ -47,7 +47,7 @@ echo "4149,CH1903,6149,CH1903,6149,9122,7004,8901,1,0,6422,1766,1,9603,674.374,1
 # (the Swisstopo page providing these downloads is http://www.swisstopo.admin.ch/internet/swisstopo/de/home/products/software/products/chenyx06.html, reachable via Products > Geodetic Software > Products and tools > CHENyx06 dataset)
 curl -O http://www.swisstopo.admin.ch/internet/swisstopo/en/home/products/software/products/chenyx06.parsys.00011.downloadList.70576.DownloadFile.tmp/chenyx06ntv2.zip
 curl -O http://www.swisstopo.admin.ch/internet/swisstopo/en/home/products/software/products/chenyx06.parsys.00011.downloadList.29885.DownloadFile.tmp/chenyx06etrs.gsb
-unzip -d /usr/share/proj/ chenyx06ntv2.zip CHENYX06a.gsb
+unzip -o -d /usr/share/proj/ chenyx06ntv2.zip CHENYX06a.gsb
 cp chenyx06etrs.gsb /usr/share/proj/
 chmod 644 /usr/share/proj/CHENYX06a.gsb
 chown $SUDO_USER: chenyx06ntv2.zip
@@ -64,8 +64,8 @@ datausername=data_user
 
 # Create .pgpass file (generate passwords)
 echo \#hostname:port:database:username:password > .pgpass
-echo localhost:*:*:$SUDO_USER:`pwgen --secure --symbols 16`- >> .pgpass
-echo localhost:*:*:$datausername:`pwgen --secure --symbols 16`* >> .pgpass
+echo localhost:*:*:$SUDO_USER:`pwgen --secure 16`- >> .pgpass
+echo localhost:*:*:$datausername:`pwgen --secure 16`* >> .pgpass
 chmod 0600 .pgpass
 chown $SUDO_USER: .pgpass
 
@@ -77,7 +77,7 @@ chown $SUDO_USER: .pgpass
 # Create login roles
 pwd=`grep $SUDO_USER .pgpass | awk -F ':' '{print $5}'` # hack: fetch password from .pgpass
 su postgres -c "psql -c \"CREATE ROLE ${SUDO_USER} LOGIN PASSWORD '${pwd}';\" " # alternative command: su postgres -c "createuser --pwprompt ${SUDO_USER}" # asks for the password
-pwd=`grep $dbusr .pgpass | awk -F ':' '{print $5}'` # hack: fetch password from .pgpass
+pwd=`grep $datausername .pgpass | awk -F ':' '{print $5}'` # hack: fetch password from .pgpass
 su postgres -c "psql -c \"CREATE ROLE ${datausername} LOGIN PASSWORD '${pwd}';\" "
 unset pwd
 # Create "function roles"
@@ -85,7 +85,7 @@ su postgres -c "psql -c 'CREATE ROLE super SUPERUSER NOINHERIT;'"
 su postgres -c "psql -c 'CREATE ROLE admin CREATEDB CREATEROLE NOINHERIT;'"
 # Create "group roles"
 su postgres -c "psql -c 'CREATE ROLE administrators NOINHERIT;'" # the basic concept is that all login roles should INHERIT group role privileges; this is, however, an "intermediate" role to prevent INHERIT of the admin role privileges to the user
-su postgres -c "psql -c 'GRANT admin TO adminitrators;'"
+su postgres -c "psql -c 'GRANT admin TO administrators;'"
 # Assign roles
 su postgres -c "psql -c 'GRANT administrators TO ${SUDO_USER} WITH ADMIN OPTION;'" # for che chief admins: WITH ADMIN OPTION; for other admins: without ADMIN OPTION
 su postgres -c "psql -c 'GRANT super TO ${SUDO_USER};'"
@@ -169,4 +169,4 @@ apt-get clean
 
 
 # Show message
-echo Part II is finished. Remember to set the DB password in .pgpass
+echo Part II is finished.

@@ -61,15 +61,25 @@ apt-get clean
 
 dbname=geodb
 datausername=data_user
-datauserpwd='6u*Tt0Es1Ai-'
+
+# Create .pgpass file (generate passwords)
+echo \#hostname:port:database:username:password > .pgpass
+echo localhost:*:*:$SUDO_USER:`pwgen --secure --symbols 16`- >> .pgpass
+echo localhost:*:*:$datausername:`pwgen --secure --symbols 16`* >> .pgpass
+chmod 0600 .pgpass
+chown $SUDO_USER: .pgpass
+
 
 # TODO: Maybe restrict DB access
 # * reject user postgres from anywhere except Unix domain socket
 # * only allow connections to database $dbname (not to postgres, template0, template1)
 
 # Create login roles
-su postgres -c "createuser --pwprompt ${SUDO_USER}" # will ask for a password
-su postgres -c "psql -c \"CREATE ROLE ${datausername} LOGIN PASSWORD '${datauserpwd}';\" " # we don't use the createuser command because it doesn't allow setting the password directly
+pwd=`grep $SUDO_USER .pgpass | awk -F ':' '{print $5}'` # hack: fetch password from .pgpass
+su postgres -c "psql -c \"CREATE ROLE ${SUDO_USER} LOGIN PASSWORD '${pwd}';\" " # alternative command: su postgres -c "createuser --pwprompt ${SUDO_USER}" # asks for the password
+pwd=`grep $dbusr .pgpass | awk -F ':' '{print $5}'` # hack: fetch password from .pgpass
+su postgres -c "psql -c \"CREATE ROLE ${datausername} LOGIN PASSWORD '${pwd}';\" "
+unset pwd
 # Create "function roles"
 su postgres -c "psql -c 'CREATE ROLE super SUPERUSER NOINHERIT;'"
 su postgres -c "psql -c 'CREATE ROLE admin CREATEDB CREATEROLE NOINHERIT;'"
@@ -91,13 +101,6 @@ su postgres -c "psql -d ${dbname} -c 'CREATE EXTENSION postgis';"
 su postgres -c "psql -d ${dbname} -c 'REVOKE CREATE ON SCHEMA public FROM PUBLIC;'" # otherwise every user could create objects in the public schema
 # TODO: Not working: su postgres -c "psql -c 'GRANT CREATE ON SCHEMA public TO admin;'"
 su postgres -c "psql -c 'GRANT CREATE ON DATABASE ${dbname} TO admin;'" # allow creating new schemas
-
-# Create .pgpass file
-echo \#hostname:port:database:username:password > .pgpass
-echo localhost:*:*:$SUDO_USER:notset >> .pgpass # remeber to update the password afterwards
-echo localhost:*:*:$datausername:$datauserpwd >> .pgpass
-chmod 0600 .pgpass
-chown $SUDO_USER: .pgpass
 
 
 

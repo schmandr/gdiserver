@@ -41,6 +41,7 @@ apt-get clean
 apt-get --yes install gdal-bin python-gdal
 apt-get clean
 # workaround for fixing wrong towgs84 parameters:
+# (maybe check first: gdalsrsinfo -o proj4 EPSG:4149)
 gdalversion=`gdalinfo --version | awk -F ' '  '{ print $2 }' | awk -F . '{ print $1 "." $2 }'`
 echo "4149,CH1903,6149,CH1903,6149,9122,7004,8901,1,0,6422,1766,1,9603,674.374,15.056,405.346,,,," >> /usr/share/gdal/$gdalversion/gcs.override.csv
 # download NTv2 grids from Swisstopo and make available for PROJ.4:
@@ -69,16 +70,30 @@ echo localhost:*:*:$datausername:`pwgen --secure 16`* >> .pgpass
 chmod 0600 .pgpass
 chown $SUDO_USER: .pgpass
 
+# Configure listen_addresses
+serverip=`ifconfig eth0 | grep "inet " | awk '{gsub("addr:","",$2);  print $2 }'`
+echo "# -----------------------------" > /etc/postgresql/9.3/main/postgresql.include.conf
+echo "# PostgreSQL customized options" >> /etc/postgresql/9.3/main/postgresql.include.conf
+echo "# -----------------------------" >> /etc/postgresql/9.3/main/postgresql.include.conf
+echo "listen_addresses = 'localhost, $serverip'" >> /etc/postgresql/9.3/main/postgresql.include.conf
+echo "include = 'postgresql.include.conf'     # customized settings" >> /etc/postgresql/9.3/main/postgresql.conf
 
-# TODO: Maybe restrict DB access
-# * reject user postgres from anywhere except Unix domain socket
-# * only allow connections to database $dbname (not to postgres, template0, template1)
+# Configure pg_hba.conf
+currentclientip=`echo $SSH_CLIENT | awk '{print $1}'`
+echo "# Custom entries" >> /etc/postgresql/9.3/main/pg_hba.conf
+echo "host    $dbname           $SUDO_USER         $currentclientip/32          md5" >> /etc/postgresql/9.3/main/pg_hba.conf
+echo "host    $dbname           $datausername      $currentclientip/32          md5" >> /etc/postgresql/9.3/main/pg_hba.conf
+
+# Restart PostgreSQL after these changes
+service postgresql restart
 
 # Create login roles
-pwd=`grep $SUDO_USER .pgpass | awk -F ':' '{print $5}'` # hack: fetch password from .pgpass
+pwd=`grep $SUDO_USER .pgpass | awk -F ':' '{print $5}'` # hack: fetch password from .pgpass -- old solution, remove
+pwd=`awk -F ':' '/'$SUDO_USER'/ {print $5}' .pgpass` # hack: fetch password from .pgpass
 su postgres -c "psql -c \"CREATE ROLE ${SUDO_USER} LOGIN PASSWORD '${pwd}';\" " # alternative command: su postgres -c "createuser --pwprompt ${SUDO_USER}" # asks for the password
-pwd=`grep $datausername .pgpass | awk -F ':' '{print $5}'` # hack: fetch password from .pgpass
-su postgres -c "psql -c \"CREATE ROLE ${datausername} LOGIN PASSWORD '${pwd}';\" "
+pwd=`grep $datausername .pgpass | awk -F ':' '{print $5}'` # hack: fetch password from .pgpass -- old solution, remove
+pwd=`awk -F ':' '/'$datausername'/ {print $5}' .pgpass` # hack: fetch password from .pgpass
+su postgres -c "psql -c 'CREATE ROLE ${datausername} LOGIN PASSWORD '${pwd}';'"
 unset pwd
 # Create "function roles"
 su postgres -c "psql -c 'CREATE ROLE super SUPERUSER NOINHERIT;'"
@@ -95,7 +110,7 @@ su postgres -c "createdb -O admin ${dbname}"
 # Install PostGIS in this DB
 su postgres -c "psql -d ${dbname} -c 'CREATE EXTENSION postgis';"
 # TODO: Maybe some GRANT necessary for geometry_columns etc.
-# TODO: Need to fix wrong towgs84 parameters for EPSG:21781 here too
+# TODO: Need to fix wrong towgs84 parameters for EPSG:21781 here too, and for EPSG:4149, maybe even more
 
 # Fine tune DB privileges
 su postgres -c "psql -d ${dbname} -c 'REVOKE CREATE ON SCHEMA public FROM PUBLIC;'" # otherwise every user could create objects in the public schema

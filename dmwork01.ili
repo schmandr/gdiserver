@@ -1,0 +1,139 @@
+TRANSFER INTERLIS1;
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!! Datamodel work
+!! Version: 0.1
+!! English attribute names, German domain values
+!! 
+!! This datamodel is based on
+!! MOpublic03_ili1_v13, Version 1.3 english from 01.02.2013
+!!
+!! Uses the same lookup tables as MOpublic03_ili1_v13
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+MODEL work01
+
+  DOMAIN
+
+    CoordP = COORD2
+      460000.000 45000.000
+      870000.000 310000.000;
+
+    CoordA = COORD3
+      460000.000 45000.000 -200.000
+      870000.000 310000.000 5000.000;
+
+    Altitude = DIM1 -200.000 5000.000;
+
+    Rotation = GRADS 0.0 399.9;
+
+    Accuracy = [0.0 .. 700.0];
+    
+    !! The remaining domains are work datamodel extensions
+      
+    QualityStandard_type_de = (
+      AV93,
+      PV74,
+      PN,
+      PEP,
+      weitere);
+      
+    LCS_type_de = (
+      Gebaeude,
+      Strasse_Weg,
+      Trottoir,
+      Verkehrsinsel,
+      Bahn,
+      Flugplatz,
+      Wasserbecken,
+      uebrige_befestigte,
+      Acker_Wiese_Weide,
+      Reben,
+      uebrige_Intensivkultur,
+      Gartenanlage,
+      Hoch_Flachmoor,
+      uebrige_humusierte,
+      Gewaesser_stehendes,
+      Gewaesser_fliessendes,
+      Schilfguertel,
+      geschlossener_Wald,
+      Wytweide_dicht,
+      Wytweide_offen,
+      uebrige_bestockte,
+      Fels,
+      Gletscher_Firn,
+      Geroell_Sand,
+      Abbau_Deponie,
+      uebrige_vegetationslose);
+      
+    Text_type_de = (
+      Nummer,
+      Name);
+
+
+  TOPIC Land_cover =
+
+    TABLE LCSurface =
+      Geometry : SURFACE WITH (STRAIGHTS, ARCS) VERTEX CoordP
+        WITHOUT OVERLAPS > 0.050;
+      quality: QualityStandard_type_de;			!! work datamodel modification
+      quality_code: [0 .. 4];				!! work datamodel extension
+      type: LCS_type_de;				!! work datamodel modification
+      type_code: [0 .. 25];				!! work datamodel extension
+      RegBL_EGID : OPTIONAL [1 .. 999999999];
+      State_of : OPTIONAL DATE;
+      FOSNr : OPTIONAL [0 .. 9999];
+    NO IDENT
+    END LCSurface;
+
+    TABLE LCSurface_PosText =
+      PosText_of : ->LCSurface; !! Relation 1-mc
+      type: Text_type_de;				!! work datamodel modification
+      type_code: [0 .. 1];				!! work datamodel extension
+      Number_Name : TEXT*30;
+      Pos : OPTIONAL CoordP;
+      Ori : OPTIONAL Rotation;
+      HAli: OPTIONAL HALIGNMENT // indefini = Center //;
+      VAli: OPTIONAL VALIGNMENT // indefini = Half //;
+      FOSNr : OPTIONAL [0 .. 9999];
+    NO IDENT
+    END LCSurface_PosText;
+
+    TABLE LCSurfaceProj =
+      Geometry : SURFACE WITH (STRAIGHTS, ARCS) VERTEX CoordP
+        WITHOUT OVERLAPS > 0.050;
+      quality: QualityStandard_type_de;			!! work datamodel modification
+      quality_code: [0 .. 4];				!! work datamodel extension
+      type: LCS_type_de;				!! work datamodel modification
+      type_code: [0 .. 25];				!! work datamodel extension
+      RegBL_EGID : OPTIONAL [1 .. 999999999];
+      State_of : OPTIONAL DATE;
+      FOSNr : OPTIONAL [0 .. 9999];
+    NO IDENT
+    END LCSurfaceProj;
+
+    TABLE LCSurfaceProj_PosText =
+      PosText_of : ->LCSurfaceProj; !! Relation 1-mc
+      type: Text_type_de;				!! work datamodel modification
+      type_code: [0 .. 1];				!! work datamodel extension
+      Number_Name : TEXT*30;
+      Pos : OPTIONAL CoordP;
+      Ori : OPTIONAL Rotation;
+      HAli: OPTIONAL HALIGNMENT // indefini = Center //;
+      VAli: OPTIONAL VALIGNMENT // indefini = Half //;
+      FOSNr : OPTIONAL [0 .. 9999];
+    NO IDENT
+    END LCSurfaceProj_PosText;
+
+  END Land_cover.
+
+END work01.
+
+FORMAT FREE;
+
+CODE
+  BLANK = DEFAULT, UNDEFINED = DEFAULT, CONTINUE = DEFAULT;
+  TID = ANY;
+END.

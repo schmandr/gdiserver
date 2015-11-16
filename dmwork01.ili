@@ -9,7 +9,8 @@ TRANSFER INTERLIS1;
 !! This datamodel is based on
 !! MOpublic03_ili1_v13, Version 1.3 english from 01.02.2013
 !!
-!! Uses the same lookup tables as MOpublic03_ili1_v13
+!! Uses the same lookup tables as MOpublic03_ili1_v13,
+!! but they are modelled as domains
 !!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

@@ -79,10 +79,11 @@ echo "listen_addresses = 'localhost, $serverip'" >> /etc/postgresql/9.3/main/pos
 echo "include = 'postgresql.include.conf'     # customized settings" >> /etc/postgresql/9.3/main/postgresql.conf
 
 # Configure pg_hba.conf
+# TODO: not working with sudo!
 currentclientip=`echo $SSH_CLIENT | awk '{print $1}'`
-echo "# Custom entries" >> /etc/postgresql/9.3/main/pg_hba.conf
-echo "host    $dbname           $SUDO_USER         $currentclientip/32          md5" >> /etc/postgresql/9.3/main/pg_hba.conf
-echo "host    $dbname           $datausername      $currentclientip/32          md5" >> /etc/postgresql/9.3/main/pg_hba.conf
+#echo "# Custom entries" >> /etc/postgresql/9.3/main/pg_hba.conf
+#echo "host    $dbname           $SUDO_USER         $currentclientip/32          md5" >> /etc/postgresql/9.3/main/pg_hba.conf
+#echo "host    $dbname           $datausername      $currentclientip/32          md5" >> /etc/postgresql/9.3/main/pg_hba.conf
 
 # Restart PostgreSQL after these changes
 service postgresql restart
@@ -93,8 +94,7 @@ pwd=`awk -F ':' '/'$SUDO_USER'/ {print $5}' .pgpass` # hack: fetch password from
 su postgres -c "psql -c \"CREATE ROLE ${SUDO_USER} LOGIN PASSWORD '${pwd}';\" " # alternative command: su postgres -c "createuser --pwprompt ${SUDO_USER}" # asks for the password
 pwd=`grep $datausername .pgpass | awk -F ':' '{print $5}'` # hack: fetch password from .pgpass -- old solution, remove
 pwd=`awk -F ':' '/'$datausername'/ {print $5}' .pgpass` # hack: fetch password from .pgpass
-su postgres -c "psql -c 'CREATE ROLE ${datausername} LOGIN PASSWORD '${pwd}';'"
-unset pwd
+su postgres -c "psql -c \"CREATE ROLE ${datausername} LOGIN PASSWORD '${pwd}';\""
 # Create "function roles"
 su postgres -c "psql -c 'CREATE ROLE super SUPERUSER NOINHERIT;'"
 su postgres -c "psql -c 'CREATE ROLE admin CREATEDB CREATEROLE NOINHERIT;'"
